@@ -21,6 +21,8 @@ public class VertexDataHolder {
 	public ArrayList<Integer> lineIndices;
 	public ArrayList<Vector2f> textureCoordinates;
 	
+	public boolean selected = false;
+	
 	public boolean textured;
 	public Material material;
 	

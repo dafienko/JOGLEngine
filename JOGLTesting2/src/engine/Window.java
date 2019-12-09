@@ -68,7 +68,7 @@ public class Window extends JFrame implements GLEventListener {
 	float[] lightSpecular = new float[] {1.0f, 1.0f, 1.0f, 1.0f};
 	
 	ArrayList<VertexDataHolder> instances;
-		
+	
 	JPanel mainPanel;
 	JPanel info;
 	

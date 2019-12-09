@@ -129,9 +129,9 @@ public class Game {
 	}
 	
 	public static void init(GL4 gl, Window wnd) {
-		int width = 70; 
-		int length = 70;
-		float scale = 14f;
+		int width = 100; 
+		int length = 100;
+		float scale = 10f;
 		
 		brian = wnd.createInstance();
 		VertexDataHolder lary = wnd.createInstance();
@@ -144,8 +144,6 @@ public class Game {
 		brian.textured = true;
 		brian.createVertexArrayObject(gl);
 		brian.createFlatVertexArrayObject(gl);
-		
-		
 		
 		lary.indices = brian.indices;
 		lary.vertexColors = brian.vertexColors;
