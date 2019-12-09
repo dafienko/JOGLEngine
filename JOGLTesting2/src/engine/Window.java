@@ -21,7 +21,7 @@ import com.jogamp.opengl.util.Animator;
 
 @SuppressWarnings("serial")
 public class Window extends JFrame implements GLEventListener {
-	private GLCanvas mainCanvas; //test
+	private GLCanvas mainCanvas; //test1
 	
 	private Animator animator;
 	
