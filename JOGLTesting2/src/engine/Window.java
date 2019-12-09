@@ -3,7 +3,7 @@ package engine;
 import static com.jogamp.opengl.GL.*;
 
 import java.nio.FloatBuffer;
-
+import java.util.ArrayList;
 import java.awt.*;
 import javax.swing.*;
 
@@ -67,9 +67,7 @@ public class Window extends JFrame implements GLEventListener {
 	float[] lightDiffuse = new float[] {1.0f, 1.0f, 1.0f, 1.0f};
 	float[] lightSpecular = new float[] {1.0f, 1.0f, 1.0f, 1.0f};
 	
-	Material currentMaterial;
-	
-	VertexDataHolder brian, lary, dave;
+	ArrayList<VertexDataHolder> instances;
 		
 	JPanel mainPanel;
 	JPanel info;
@@ -108,10 +106,13 @@ public class Window extends JFrame implements GLEventListener {
 		animator.start();
 	}
 	
+	public VertexDataHolder createInstance() {
+		VertexDataHolder v = new VertexDataHolder();
+		instances.add(v);
+		return v;
+	}
+	
 	public void initVariables() {
-		vao = new int[1];
-		vbo = new int[2];
-		
 		camPos = new Vector3f(0, 200, 0.4f);
 		camRot = new Vector3f((float)(Math.PI/-5.0f), (float)(-Math.PI/1.4f), 0);
 		
@@ -132,12 +133,7 @@ public class Window extends JFrame implements GLEventListener {
 		
 		fpsCounter = new FPSCounter();
 		
-		//currentMaterial = new Material(); currentMaterial.randomizeMaterial();
-		//currentMaterial = Materials.getGoldMaterial();
-		currentMaterial = Materials.getDefMaterial();
-		brian = new VertexDataHolder();
-		lary = new VertexDataHolder();
-		dave = new VertexDataHolder();
+		instances = new ArrayList<VertexDataHolder>();
 		
 		kbd = new Keyboard();
 		this.addKeyListener(kbd);
@@ -146,12 +142,7 @@ public class Window extends JFrame implements GLEventListener {
 	public GL4 getGLContext() {
 		return (GL4) GLContext.getCurrentGL();
  	}
-	
-	private float scale = 14f;
-	private int width = 70;
-	private int length = 70;
-	
-	
+
 	
 	@Override 
 	public void init(GLAutoDrawable drawable) {
@@ -160,38 +151,8 @@ public class Window extends JFrame implements GLEventListener {
 		//vfMainProgram = Util.createShaderProgram(drawable); // gouraud shading
 		vfMainProgram = Util.createShaderProgram(drawable, "vertexPhong.glsl", "fragmentPhong.glsl");
 		vfFlatColorProgram = Util.createShaderProgram(drawable, "vertexFlat.glsl", "fragmentFlat.glsl");
-		Game.setupVerts(brian, width, length, scale);
 		
-		lary.indices = brian.indices;
-		lary.vertexColors = brian.vertexColors;
-		lary.vertexPositions = brian.vertexPositions;
-		lary.vertexNormals = brian.vertexNormals;
-		
-		lary.textureCoordinates = brian.textureCoordinates;
-		
-		lary.imageName = "lary.jpg";
-		
-		lary.modelPosition = new Vector3f(width * scale, 0, 0);
-		
-		lary.updateMatrix();
-		
-		lary.createVertexArrayObject(gl);
-		lary.createFlatVertexArrayObject(gl);
-		
-		dave.indices = brian.indices;
-		dave.vertexColors = brian.vertexColors;
-		dave.vertexPositions = brian.vertexPositions;
-		dave.vertexNormals = brian.vertexNormals;
-		
-		dave.textureCoordinates = brian.textureCoordinates;
-		
-		dave.imageName = "david.jpg";
-		
-		dave.modelPosition = new Vector3f(width * -scale, 0, 0);
-		dave.updateMatrix();
-		
-		dave.createVertexArrayObject(gl);
-		dave.createFlatVertexArrayObject(gl);
+		Game.init(gl, this);
 	};
 	
 	public void glClearCrap() {
@@ -220,7 +181,7 @@ public class Window extends JFrame implements GLEventListener {
 		gl.glUniform4f(cLoc, c.x, c.y, c.z, 1.0f);
 	}
 	
-	public void updateUniforms(VertexDataHolder mesh) {
+	public void updateUniforms() {
 		GL4 gl = (GL4) GLContext.getCurrentGL();
 		
 		cLoc = gl.glGetUniformLocation(vfFlatColorProgram, "vColor");
@@ -239,13 +200,6 @@ public class Window extends JFrame implements GLEventListener {
 		gl.glUniformMatrix4fv(cameraMatLoc, 1, false, camMatrix.get(matrixVals));
 		
 		
-		modelMatLoc = gl.glGetUniformLocation(vfMainProgram, "modelMatrix");	
-		gl.glUniformMatrix4fv(modelMatLoc, 1, false, mesh.modelMatrix.get(matrixVals));
-		
-		modelMatLoc = gl.glGetUniformLocation(vfFlatColorProgram, "modelMatrix");	
-		gl.glUniformMatrix4fv(modelMatLoc, 1, false, mesh.modelMatrix.get(matrixVals));
-		
-		
 		nLoc = gl.glGetUniformLocation(vfMainProgram, "normMatrix");
 		gl.glUniformMatrix4fv(nLoc, 1, false, invTrMat.get(matrixVals));
 		
@@ -254,10 +208,6 @@ public class Window extends JFrame implements GLEventListener {
 		diffLoc = gl.glGetUniformLocation(vfMainProgram, "light.diffuse");
 		specLoc = gl.glGetUniformLocation(vfMainProgram, "light.specular");
 		posLoc = gl.glGetUniformLocation(vfMainProgram, "light.position");
-		mAmbLoc = gl.glGetUniformLocation(vfMainProgram, "material.ambient");
-		mDiffLoc = gl.glGetUniformLocation(vfMainProgram, "material.diffuse");
-		mSpecLoc = gl.glGetUniformLocation(vfMainProgram, "material.specular");
-		mShiLoc = gl.glGetUniformLocation(vfMainProgram, "material.shininess");
 	}
 	
 	public void updateMatrices() {
@@ -281,7 +231,32 @@ public class Window extends JFrame implements GLEventListener {
 		invTrMat.transpose(invTrMat);
 	}
 	
-	private void installLights(Matrix4f vMatrix) {
+	public int texturedLoc;
+	public void updateMeshUniforms(VertexDataHolder mesh) {
+		GL4 gl = (GL4) GLContext.getCurrentGL();
+		
+		modelMatLoc = gl.glGetUniformLocation(vfMainProgram, "modelMatrix");	
+		gl.glUniformMatrix4fv(modelMatLoc, 1, false, mesh.modelMatrix.get(matrixVals));
+		
+		modelMatLoc = gl.glGetUniformLocation(vfFlatColorProgram, "modelMatrix");	
+		gl.glUniformMatrix4fv(modelMatLoc, 1, false, mesh.modelMatrix.get(matrixVals));
+		
+		
+		texturedLoc = gl.glGetUniformLocation(vfMainProgram, "textured");
+		gl.glProgramUniform1i(vfMainProgram, texturedLoc, mesh.textured ? 1 : 0);
+		
+		mAmbLoc = gl.glGetUniformLocation(vfMainProgram, "material.ambient");
+		mDiffLoc = gl.glGetUniformLocation(vfMainProgram, "material.diffuse");
+		mSpecLoc = gl.glGetUniformLocation(vfMainProgram, "material.specular");
+		mShiLoc = gl.glGetUniformLocation(vfMainProgram, "material.shininess");
+		
+		gl.glProgramUniform4fv(vfMainProgram, mAmbLoc, 1, mesh.material.ambient, 0);
+		gl.glProgramUniform4fv(vfMainProgram, mDiffLoc, 1, mesh.material.diffuse, 0);
+		gl.glProgramUniform4fv(vfMainProgram, mSpecLoc, 1, mesh.material.specular, 0);
+		gl.glProgramUniform1f(vfMainProgram, mShiLoc, mesh.material.shininess);
+	}
+	
+	private void installLights(Matrix4f vMatrix, VertexDataHolder mesh) {
 		GL4 gl = (GL4) GLContext.getCurrentGL();
 		
 		currentLightPos.mulPosition(vMatrix);
@@ -295,10 +270,6 @@ public class Window extends JFrame implements GLEventListener {
 		gl.glProgramUniform4fv(vfMainProgram, diffLoc, 1, lightDiffuse, 0);
 		gl.glProgramUniform4fv(vfMainProgram, specLoc, 1, lightSpecular, 0);
 		gl.glProgramUniform4fv(vfMainProgram, posLoc, 1, lightPos, 0);
-		gl.glProgramUniform4fv(vfMainProgram, mAmbLoc, 1, currentMaterial.ambient, 0);
-		gl.glProgramUniform4fv(vfMainProgram, mDiffLoc, 1, currentMaterial.diffuse, 0);
-		gl.glProgramUniform4fv(vfMainProgram, mSpecLoc, 1, currentMaterial.specular, 0);
-		gl.glProgramUniform1f(vfMainProgram, mShiLoc, currentMaterial.shininess);
 	}
 	
 	public void glDrawFaces(VertexDataHolder mesh) {
@@ -307,7 +278,7 @@ public class Window extends JFrame implements GLEventListener {
 		gl.glUseProgram(vfMainProgram);
 		
 		mesh.updateMatrix();
-		updateUniforms(mesh);
+		updateMeshUniforms(mesh);
 		
 		gl.glBindVertexArray(mesh.vao[0]);
 		
@@ -322,14 +293,14 @@ public class Window extends JFrame implements GLEventListener {
 		
 		gl.glUseProgram(vfFlatColorProgram);
 		
-		updateUniforms(mesh);
+		mesh.updateMatrix();
+		updateMeshUniforms(mesh);
 		
 		gl.glBindVertexArray(mesh.flatvao[0]);
 		
 		gl.glLineWidth(1.0f);
 		
 		gl.glDisable(GL_DEPTH_TEST);	
-		
 		
 		setColor(gl, wireframeColor);
 		gl.glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh.flatvbo[0]);
@@ -419,35 +390,39 @@ public class Window extends JFrame implements GLEventListener {
 		
 		kbd.updateKeyboard();
 		
+		Game.update(deltaTime);
+		
 		glClearCrap(); // clear depth buffer and stuff
 		
 		updateCamera(deltaTime);
 		
 		updateMatrices(); // update the camera matrix
 		
-		installLights(camMatrix);
+		updateUniforms();
+		glEnableCrap(); 
 		
 		switch(wireFrameMode) {
 		case 0:
-			glEnableCrap(); 
-			//glDrawFaces(brian);
-			glDrawFaces(dave);
-			glDrawFaces(lary);
+			for (VertexDataHolder v : instances) {
+				installLights(camMatrix, v);
+				glDrawFaces(v);
+			}
 			break;
 		case 1:
-			glEnableCrap(); 
-			//glDrawFaces(brian);
-			glDrawFaces(dave);
-			glDrawFaces(lary);
+			for (VertexDataHolder v : instances) {
+				installLights(camMatrix, v);
+				glDrawFaces(v);
+			}
 			
-			//glDrawLinesAndPoints(brian);
-			glDrawLinesAndPoints(dave);
-			glDrawLinesAndPoints(lary);
+			updateUniforms();
+			for (VertexDataHolder v : instances) {
+				glDrawLinesAndPoints(v);
+			}
 			break;
 		case 2:
-			//glDrawLinesAndPoints(brian);
-			glDrawLinesAndPoints(dave);
-			glDrawLinesAndPoints(lary);
+			for (VertexDataHolder v : instances) {
+				glDrawLinesAndPoints(v);
+			}
 			break;
 		}
 			

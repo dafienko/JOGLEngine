@@ -6,12 +6,12 @@ import org.joml.Vector2f;
 import org.joml.Vector3f;
 
 import com.jogamp.opengl.GL4;
-import com.jogamp.opengl.GLContext;
 
 public class Game {
+
+	private static VertexDataHolder brian;
+	
 	public static void setupVerts(VertexDataHolder mesh, int width, int length, float scale) {
-		GL4 gl = (GL4) GLContext.getCurrentGL();
-		
 		Vector3f[] points = new Vector3f[width * length];
 		Vector3f[] normals = new Vector3f[width * length];
 		Vector2f[] texCoords = new Vector2f[width * length];
@@ -126,10 +126,66 @@ public class Game {
 		mesh.vertexNormals = VertexDataHolder.arrayToArrayList(normals);
 		
 		mesh.textureCoordinates = texCoordArrayList;
+	}
+	
+	public static void init(GL4 gl, Window wnd) {
+		int width = 70; 
+		int length = 70;
+		float scale = 14f;
 		
-		mesh.imageName = "behaan.jpg";
+		brian = wnd.createInstance();
+		VertexDataHolder lary = wnd.createInstance();
+		VertexDataHolder dave = wnd.createInstance();
+
+
+		setupVerts(brian, width, length, scale);
 		
-		mesh.createVertexArrayObject(gl);
-		mesh.createFlatVertexArrayObject(gl);
+		brian.imageName = "behaan.jpg";
+		brian.textured = true;
+		brian.createVertexArrayObject(gl);
+		brian.createFlatVertexArrayObject(gl);
+		
+		
+		
+		lary.indices = brian.indices;
+		lary.vertexColors = brian.vertexColors;
+		lary.vertexPositions = brian.vertexPositions;
+		lary.vertexNormals = brian.vertexNormals;
+		
+		lary.textureCoordinates = brian.textureCoordinates;
+		
+		lary.imageName = "lary.jpg";
+		
+		lary.modelPosition = new Vector3f(width * scale, 0, 0);
+		
+		lary.updateMatrix();
+		lary.textured = true;
+		
+		lary.createVertexArrayObject(gl);
+		lary.createFlatVertexArrayObject(gl);
+		
+		
+		
+		dave.indices = brian.indices;
+		dave.vertexColors = brian.vertexColors;
+		dave.vertexPositions = brian.vertexPositions;
+		dave.vertexNormals = brian.vertexNormals;
+		
+		dave.textureCoordinates = brian.textureCoordinates;
+		
+		dave.imageName = "david.jpg";
+		
+		dave.modelPosition = new Vector3f(width * -scale, 0, 0);
+		dave.updateMatrix();
+		dave.textured = true;
+		
+		dave.createVertexArrayObject(gl);
+		dave.createFlatVertexArrayObject(gl);
+	}
+
+	private static float elapsedTime = 0.0f;
+	public static void update(float dt) {
+		elapsedTime += dt;
+		brian.modelPosition.set(new Vector3f(0, (float)Math.sin(elapsedTime) * 200, 0));
 	}
 }

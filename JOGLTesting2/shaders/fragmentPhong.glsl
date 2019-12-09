@@ -29,6 +29,7 @@ uniform PositionalLight light;
 uniform Material material;
 
 uniform vec4 globalAmbient;
+uniform int textured;
 
 void main() {
 	vec3 L = normalize(varyingLightDir);
@@ -47,5 +48,9 @@ void main() {
 
 	//fragColor = vec4(color, 1);
 	//fragColor = texture(samp, tc);
-	fragColor = texture(samp, tc) * vec4((ambient + diffuse + specular).xyz, 1.0);
+	if (textured == 1) {
+		fragColor = texture(samp, tc) * vec4((ambient + diffuse + specular).xyz, 1.0);
+	} else {
+		fragColor = vec4((ambient + diffuse + specular).xyz, 1.0);
+	}
 }

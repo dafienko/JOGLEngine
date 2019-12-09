@@ -37,7 +37,7 @@ uniform vec4 globalAmbient;
 uniform mat4 cameraMatrix;
 uniform mat4 projectionMatrix;
 uniform mat4 normMatrix;
-
+uniform int textured;
 
 void main() {
 	mat4 mvMatrix = cameraMatrix * modelMatrix;

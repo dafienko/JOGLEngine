@@ -21,11 +21,15 @@ public class VertexDataHolder {
 	public ArrayList<Integer> lineIndices;
 	public ArrayList<Vector2f> textureCoordinates;
 	
-	Vector3f modelPosition;
+	public boolean textured;
+	public Material material;
 	
-	Matrix4f modelMatrix;
+	public Vector3f modelPosition;
+	public Vector3f modelRotation;
 	
-	String imageName;
+	public Matrix4f modelMatrix;
+	
+	public String imageName;
 	
 	public int[] flatvao;
 	public int[] flatvbo;
@@ -48,6 +52,7 @@ public class VertexDataHolder {
 	
 	public void updateMatrix() {
 		modelMatrix.identity();
+		modelMatrix.setRotationXYZ(modelRotation.x, modelRotation.y, modelRotation.z);
 		modelMatrix.setTranslation(modelPosition);
 	}
 	
@@ -58,9 +63,9 @@ public class VertexDataHolder {
 		indices = new ArrayList<Integer>();
 		lineIndices = new ArrayList<Integer>();
 		textureCoordinates  = new ArrayList<Vector2f>();
-		
+		material = Materials.getDefMaterial();
 		textures = new int[1];
-		
+		textured = false;
 		vao = new int[1];
 		vbo = new int[6];
 		
@@ -68,15 +73,16 @@ public class VertexDataHolder {
 		flatvbo = new int[2];
 		
 		modelPosition = new Vector3f(0, 0, 0);
+		modelRotation = new Vector3f(0, 0, 0);
 		
 		modelMatrix = new Matrix4f();
 		modelMatrix.identity();
+		modelMatrix.setRotationXYZ(modelRotation.x, modelRotation.y, modelRotation.z);
 		modelMatrix.setTranslation(modelPosition);
 		
 		texId = 0;
 		
 		imageName = "";
-
 	}
 	
 	private float[] vector3ArrayListfToFloatArray(ArrayList<Vector3f> arr) {
@@ -157,8 +163,9 @@ public class VertexDataHolder {
 		gl.glVertexAttribPointer(4, 2, GL_FLOAT, false, 0, 0);
 		gl.glEnableVertexAttribArray(4);
 		
-		texId = Util.loadTextureAWT(imageName, gl);
-		
+		if (textured) {
+			texId = Util.loadTextureAWT(imageName, gl);
+		}
 		
 	}
 	
