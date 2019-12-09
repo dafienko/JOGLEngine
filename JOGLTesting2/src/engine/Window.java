@@ -5,7 +5,8 @@ import static com.jogamp.opengl.GL.*;
 import java.nio.FloatBuffer;
 import java.util.ArrayList;
 
-import javax.swing.JFrame;
+import java.awt.*;
+import javax.swing.*;
 
 import org.joml.Matrix4f;
 import org.joml.Vector2f;
@@ -80,14 +81,34 @@ public class Window extends JFrame implements GLEventListener {
 	float[] matSpe = Materials.JADE_SPECULAR;
 	float matShi = Materials.JADE_SHININESS;
 	*/
+	JPanel mainPanel;
+	JPanel info;
+	
+	JLabel frameRateLabel;
+	
 	public Window() {
 		this.setBounds(0, 0, 1920, 1080);
 		this.setDefaultCloseOperation(EXIT_ON_CLOSE);
+		this.setTitle("yeet");
+		this.setLayout(new BorderLayout());
+		
+		mainPanel = new JPanel(new BorderLayout());
+		info = new JPanel();
 		
 		mainCanvas = new GLCanvas();
 		mainCanvas.addGLEventListener(this);
 		
-		this.add(mainCanvas);
+		mainPanel.add(mainCanvas);
+		
+		frameRateLabel = new JLabel("FrameRate");
+		
+		frameRateLabel.setFont(new Font("TimesRoman", Font.PLAIN, 20));
+		
+		info.add(frameRateLabel);
+		
+		this.add(info, BorderLayout.NORTH);
+		this.add(mainPanel, BorderLayout.CENTER);
+	
 		
 		this.setVisible(true);
 		
@@ -523,7 +544,8 @@ public class Window extends JFrame implements GLEventListener {
 	public void display(GLAutoDrawable drawable) {
 		deltaTime = fpsCounter.tick();
 		elapsedTime += deltaTime;
-		this.setTitle(fpsCounter.getFPS() + " fps");
+		//this.setTitle(fpsCounter.getFPS() + " fps");
+		frameRateLabel.setText("framerate = " + fpsCounter.getFPS() + " FPS");
 		
 		colorVal = (float)((Math.sin(elapsedTime*3) + 1) / 2);
 		wireframeColor.set(colorVal, colorVal, 1);
