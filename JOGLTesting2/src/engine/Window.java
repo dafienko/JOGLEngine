@@ -291,6 +291,8 @@ public class Window extends JFrame implements GLEventListener {
 	public void glDrawLinesAndPoints(VertexDataHolder mesh) {
 		GL4 gl = (GL4) GLContext.getCurrentGL();
 		
+		gl.glDisable(GL_DEPTH_TEST);
+		
 		gl.glUseProgram(vfFlatColorProgram);
 		
 		mesh.updateMatrix();
@@ -299,8 +301,11 @@ public class Window extends JFrame implements GLEventListener {
 		gl.glBindVertexArray(mesh.flatvao[0]);
 		
 		gl.glLineWidth(1.0f);
+<<<<<<< HEAD
 		
 		gl.glDisable(GL_DEPTH_TEST);	
+=======
+>>>>>>> refs/remotes/origin/master
 		
 		setColor(gl, wireframeColor);
 		gl.glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh.flatvbo[0]);
@@ -392,8 +397,11 @@ public class Window extends JFrame implements GLEventListener {
 		
 		Game.update(deltaTime);
 		
+<<<<<<< HEAD
 		glClearCrap(); // clear depth buffer and stuff
 		
+=======
+>>>>>>> refs/remotes/origin/master
 		updateCamera(deltaTime);
 		
 		updateMatrices(); // update the camera matrix
@@ -403,12 +411,20 @@ public class Window extends JFrame implements GLEventListener {
 		
 		switch(wireFrameMode) {
 		case 0:
+<<<<<<< HEAD
 			for (VertexDataHolder v : instances) {
 				installLights(camMatrix, v);
 				glDrawFaces(v);
 			}
+=======
+			glEnableCrap();
+			glDrawFaces(brian);
+			glDrawFaces(dave);
+			glDrawFaces(lary);
+>>>>>>> refs/remotes/origin/master
 			break;
 		case 1:
+<<<<<<< HEAD
 			for (VertexDataHolder v : instances) {
 				installLights(camMatrix, v);
 				glDrawFaces(v);
@@ -418,6 +434,19 @@ public class Window extends JFrame implements GLEventListener {
 			for (VertexDataHolder v : instances) {
 				glDrawLinesAndPoints(v);
 			}
+=======
+			glEnableCrap();
+			glDrawFaces(brian);
+			glDrawLinesAndPoints(brian);
+			
+			glEnableCrap();
+			glDrawFaces(dave);
+			glDrawLinesAndPoints(dave);
+			
+			glEnableCrap();
+			glDrawFaces(lary);
+			glDrawLinesAndPoints(lary);
+>>>>>>> refs/remotes/origin/master
 			break;
 		case 2:
 			for (VertexDataHolder v : instances) {
