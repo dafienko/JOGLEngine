@@ -129,6 +129,8 @@ public class Window extends JFrame implements GLEventListener {
 		
 		wireframeColor = new Vector3f();
 		
+		
+		
 		matrixVals = Buffers.newDirectFloatBuffer(16);
 		
 		fpsCounter = new FPSCounter();
@@ -396,7 +398,6 @@ public class Window extends JFrame implements GLEventListener {
 		
 		glClearCrap(); // clear depth buffer and stuff
 		
-
 		updateCamera(deltaTime);
 		
 		updateMatrices(); // update the camera matrix
@@ -411,8 +412,10 @@ public class Window extends JFrame implements GLEventListener {
 				installLights(camMatrix, v);
 				glDrawFaces(v);
 			}
+			
 			break;
 		case 1:
+			
 			for (VertexDataHolder v : instances) {
 				installLights(camMatrix, v);
 				glDrawFaces(v);

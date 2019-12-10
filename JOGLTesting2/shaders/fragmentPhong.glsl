@@ -49,7 +49,7 @@ void main() {
 	//fragColor = vec4(color, 1);
 	//fragColor = texture(samp, tc);
 	if (textured == 1) {
-		fragColor = texture(samp, tc) * vec4((ambient + diffuse + specular).xyz, 1.0);
+		fragColor = (texture(samp, tc) - vec4(.4, .4, .4, 0)) * 8 * vec4((ambient + diffuse + specular).xyz, 1.0);
 	} else {
 		fragColor = vec4((ambient + diffuse + specular).xyz, 1.0);
 	}
