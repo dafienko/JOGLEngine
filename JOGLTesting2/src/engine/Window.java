@@ -20,7 +20,7 @@ import com.jogamp.opengl.awt.GLCanvas;
 import com.jogamp.opengl.util.Animator;
 
 @SuppressWarnings("serial")
-public class Window extends JFrame implements GLEventListener {
+public class Window extends JFrame implements GLEventListener, Container {
 	private GLCanvas mainCanvas; //test1
 	
 	private Animator animator;
@@ -67,8 +67,6 @@ public class Window extends JFrame implements GLEventListener {
 	float[] lightDiffuse = new float[] {1.0f, 1.0f, 1.0f, 1.0f};
 	float[] lightSpecular = new float[] {1.0f, 1.0f, 1.0f, 1.0f};
 	
-	ArrayList<VertexDataHolder> instances;
-	
 	JPanel mainPanel;
 	JPanel info;
 	
@@ -106,9 +104,24 @@ public class Window extends JFrame implements GLEventListener {
 		animator.start();
 	}
 	
+	@Override 
+	public void setChild(Instance child) {
+		children.add(child);
+	}
+	
+	@Override 
+	public void removeChild(Instance child) {
+		for (int i = 0; i < children.size(); i++) {
+			if (child == children.get(i)) {
+				children.remove(i);
+			}
+		}
+	}
+	
+	
 	public VertexDataHolder createInstance() {
 		VertexDataHolder v = new VertexDataHolder();
-		instances.add(v);
+		children.add(v);
 		return v;
 	}
 	
@@ -134,9 +147,7 @@ public class Window extends JFrame implements GLEventListener {
 		matrixVals = Buffers.newDirectFloatBuffer(16);
 		
 		fpsCounter = new FPSCounter();
-		
-		instances = new ArrayList<VertexDataHolder>();
-		
+
 		kbd = new Keyboard();
 		this.addKeyListener(kbd);
 	}
@@ -408,28 +419,43 @@ public class Window extends JFrame implements GLEventListener {
 		switch(wireFrameMode) {
 		case 0:
 
-			for (VertexDataHolder v : instances) {
-				installLights(camMatrix, v);
-				glDrawFaces(v);
+			for (Instance i : children) {
+				if (i instanceof VertexDataHolder) {
+					VertexDataHolder v = (VertexDataHolder) i;
+					installLights(camMatrix, v);
+					glDrawFaces(v);
+					
+					if (v.selected) {
+						updateUniforms();
+						glDrawLinesAndPoints(v);
+					}
+				}
 			}
 			
 			break;
 		case 1:
-			
-			for (VertexDataHolder v : instances) {
-				installLights(camMatrix, v);
-				glDrawFaces(v);
+			for (Instance i : children) {
+				if (i instanceof VertexDataHolder) {
+					VertexDataHolder v = (VertexDataHolder) i;
+					installLights(camMatrix, v);
+					glDrawFaces(v);
+				}
 			}
 			
 			updateUniforms();
-			for (VertexDataHolder v : instances) {
-				glDrawLinesAndPoints(v);
+			for (Instance i : children) {
+				if (i instanceof VertexDataHolder) {
+					VertexDataHolder v = (VertexDataHolder) i;
+					glDrawLinesAndPoints(v);
+				}
 			}
-
 			break;
 		case 2:
-			for (VertexDataHolder v : instances) {
-				glDrawLinesAndPoints(v);
+			for (Instance i : children) {
+				if (i instanceof VertexDataHolder) {
+					VertexDataHolder v = (VertexDataHolder) i;
+					glDrawLinesAndPoints(v);
+				}
 			}
 			break;
 		}
