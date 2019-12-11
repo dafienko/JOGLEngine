@@ -1,6 +1,10 @@
 #version 430
 
+layout (binding=0) uniform sampler2D samp;
+
 in vec4 varyingColor;
+in vec2 tc;
+
 
 out vec4 fragColor;
 
@@ -22,12 +26,13 @@ struct Material {
 uniform PositionalLight light;
 uniform Material material;
 
-uniform mat4 cameraMatrix;
-uniform mat4 projectionMatrix;
-uniform mat4 mvMatrix;
-uniform vec4 c;
-uniform mat4 normMatrix;
+uniform vec4 globalAmbient;
+uniform int textured;
 
 void main() {
-	fragColor = varyingColor;
+	if (textured == 1) {
+		fragColor = texture(samp, tc) * varyingColor;
+	} else {
+		fragColor = varyingColor;
+	}
 }

@@ -2,9 +2,14 @@
 
 layout (location=1) in vec3 position;
 layout (location=2) in vec3 normal;
-layout (location=3) in vec3 color;
+layout (location=3) in vec3 c;
+layout (location=4) in vec2 texCoord;
+layout (binding=0) uniform sampler2D samp;
+
 
 out vec4 varyingColor;
+out vec2 tc;
+
 
 struct PositionalLight
 {
@@ -24,15 +29,15 @@ struct Material {
 uniform PositionalLight light;
 uniform Material material;
 
+uniform mat4 modelMatrix;
 uniform vec4 globalAmbient;
 uniform mat4 cameraMatrix;
 uniform mat4 projectionMatrix;
-uniform mat4 mvMatrix;
 uniform mat4 normMatrix;
-
+uniform int textured;
 
 void main() {
-	vec4 aColor = vec4(color, 1.0);
+	mat4 mvMatrix = cameraMatrix * modelMatrix;
 
 	vec4 P = mvMatrix * vec4(position, 1.0);
 	vec3 N = normalize((normMatrix * vec4(normal, 1.0)).xyz);
@@ -51,8 +56,9 @@ void main() {
 
 	//varyingColor = vec4((ambient + diffuse + specular), 1.0);
 	//varyingColor = vec4((color * (ambient + diffuse) + specular).xyz, 1.0);
-	varyingColor = vec4((color * (ambient + diffuse + specular)).xyz, 1.0);
+	varyingColor = vec4(((ambient + diffuse + specular)).xyz, 1.0);
 
+	tc = texCoord;
 
 	gl_Position = projectionMatrix * mvMatrix * vec4(position.xyz, 1.0);
 };

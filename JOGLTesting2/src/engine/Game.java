@@ -175,10 +175,13 @@ public class Game {
 		
 		dave.modelPosition = new Vector3f(width * -scale, 0, 0);
 		dave.updateMatrix();
-		dave.textured = true;
+		dave.textured = false;
+		dave.material = Materials.getGoldMaterial();
 		
 		dave.createVertexArrayObject(gl);
 		dave.createFlatVertexArrayObject(gl);
+		
+		wnd.removeChild(brian);
 	}
 
 	private static float elapsedTime = 0.0f;

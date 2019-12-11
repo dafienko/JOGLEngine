@@ -25,32 +25,27 @@ public class Window extends JFrame implements GLEventListener, Container {
 	
 	private Animator animator;
 	
+	private Camera currentCamera;
+	
 	private int vfMainProgram;
 	private int vfFlatColorProgram;
 	private FPSCounter fpsCounter;
 	
-	float[] verts;
-	float[] vertNormals;
+	private char wireFrameMode = 0;
+	private Vector3f wireframeColor;
+	private float elapsedTime;
 	
-	char wireFrameMode = 0;
-	Vector3f wireframeColor;
-	float elapsedTime;
+	private Matrix4f invTrMat;
 	
-	Vector3f camPos;
-	Vector3f camRot;
-	Matrix4f camMatrix;
+	private Matrix4f projectionMatrix;
 	
-	Matrix4f invTrMat;
+	private Matrix4f modelMatrix;
+	private Matrix4f viewModelMatrix; // camMatrix * modelMatrix
+	private Matrix4f modelViewMatrix;
 	
-	Matrix4f projectionMatrix;
+	private FloatBuffer matrixVals;
 	
-	Matrix4f modelMatrix;
-	Matrix4f viewModelMatrix; // camMatrix * modelMatrix
-	Matrix4f modelViewMatrix;
-	
-	FloatBuffer matrixVals;
-	
-	Keyboard kbd;
+	private Keyboard kbd;
 	
 	float aspect;
 	
@@ -67,10 +62,10 @@ public class Window extends JFrame implements GLEventListener, Container {
 	float[] lightDiffuse = new float[] {1.0f, 1.0f, 1.0f, 1.0f};
 	float[] lightSpecular = new float[] {1.0f, 1.0f, 1.0f, 1.0f};
 	
-	JPanel mainPanel;
-	JPanel info;
+	private JPanel mainPanel;
+	private JPanel info;
 	
-	JLabel frameRateLabel;
+	private JLabel frameRateLabel;
 	
 	public Window() {
 		this.setBounds(0, 0, 1920, 1080);
@@ -95,6 +90,7 @@ public class Window extends JFrame implements GLEventListener, Container {
 		this.add(info, BorderLayout.NORTH);
 		this.add(mainPanel, BorderLayout.CENTER);
 	
+		currentCamera = new Camera(new Vector3f(20, 0, -40));
 		
 		this.setVisible(true);
 		
@@ -126,11 +122,6 @@ public class Window extends JFrame implements GLEventListener, Container {
 	}
 	
 	public void initVariables() {
-		camPos = new Vector3f(0, 200, 0.4f);
-		camRot = new Vector3f((float)(Math.PI/-5.0f), (float)(-Math.PI/1.4f), 0);
-		
-		camMatrix = new Matrix4f();
-		
 		projectionMatrix = new Matrix4f();
 		
 		modelMatrix = new Matrix4f();
@@ -156,7 +147,6 @@ public class Window extends JFrame implements GLEventListener, Container {
 		return (GL4) GLContext.getCurrentGL();
  	}
 
-	
 	@Override 
 	public void init(GLAutoDrawable drawable) {
 		GL4 gl = (GL4) GLContext.getCurrentGL();
@@ -207,10 +197,10 @@ public class Window extends JFrame implements GLEventListener, Container {
 		
 		
 		cameraMatLoc = gl.glGetUniformLocation(vfFlatColorProgram, "cameraMatrix");
-		gl.glUniformMatrix4fv(cameraMatLoc, 1, false, camMatrix.get(matrixVals));
+		gl.glUniformMatrix4fv(cameraMatLoc, 1, false, currentCamera.returnMatrix.get(matrixVals));
 		
 		cameraMatLoc = gl.glGetUniformLocation(vfMainProgram, "cameraMatrix");
-		gl.glUniformMatrix4fv(cameraMatLoc, 1, false, camMatrix.get(matrixVals));
+		gl.glUniformMatrix4fv(cameraMatLoc, 1, false, currentCamera.returnMatrix.get(matrixVals));
 		
 		
 		nLoc = gl.glGetUniformLocation(vfMainProgram, "normMatrix");
@@ -226,15 +216,14 @@ public class Window extends JFrame implements GLEventListener, Container {
 	public void updateMatrices() {
 		modelMatrix.identity();
 		
-		aspect = (float) mainCanvas.getWidth() / (float) mainCanvas.getHeight();
-		projectionMatrix.setPerspective((float)Math.toRadians(105.0f), aspect, 0.1f, 4000.0f);
+		projectionMatrix.setPerspective((float)Math.toRadians(currentCamera.FOV), aspect, 0.1f, 4000.0f);
 		
 		modelViewMatrix.identity();
-		modelViewMatrix.set(camMatrix);
+		modelViewMatrix.set(currentCamera.getMatrix());
 		modelViewMatrix.mul(new Matrix4f().identity());
 		
 		viewModelMatrix.identity();
-		viewModelMatrix.mul(camMatrix);
+		viewModelMatrix.mul(currentCamera.getMatrix());
 		viewModelMatrix.mul(modelMatrix);
 		
 		currentLightPos.set(initialLightLoc);
@@ -269,7 +258,7 @@ public class Window extends JFrame implements GLEventListener, Container {
 		gl.glProgramUniform1f(vfMainProgram, mShiLoc, mesh.material.shininess);
 	}
 	
-	private void installLights(Matrix4f vMatrix, VertexDataHolder mesh) {
+	private void installLights(Matrix4f vMatrix) {
 		GL4 gl = (GL4) GLContext.getCurrentGL();
 		
 		currentLightPos.mulPosition(vMatrix);
@@ -339,7 +328,7 @@ public class Window extends JFrame implements GLEventListener, Container {
 			yRot = -1;
 		}
 		
-		camRot.add(new Vector3f(-xRot * sensitivity, -yRot * sensitivity, 0));
+		currentCamera.rotation.add(new Vector3f(-xRot * sensitivity, -yRot * sensitivity, 0));
 		
 		speed = 200f * deltaTime;
 		zDir = 0;
@@ -365,23 +354,21 @@ public class Window extends JFrame implements GLEventListener, Container {
 		
 		Vector3f rightVector = new Vector3f();
 		rightVector.y = 0;
-		rightVector.x = (float)Math.cos(camRot.y);
-		rightVector.z = (float)-Math.sin(camRot.y);
+		rightVector.x = (float)Math.cos(currentCamera.rotation.y);
+		rightVector.z = (float)-Math.sin(currentCamera.rotation.y);
 		
 		Vector3f lookVector = new Vector3f();
-		lookVector.y = (float)Math.sin(camRot.x);
-		lookVector.x = (float)Math.cos(camRot.y + (Math.PI/2));
-		lookVector.z = (float)-Math.sin(camRot.y + (Math.PI/2));
+		lookVector.y = (float)Math.sin(currentCamera.rotation.x);
+		lookVector.x = (float)Math.cos(currentCamera.rotation.y + (Math.PI/2));
+		lookVector.z = (float)-Math.sin(currentCamera.rotation.y + (Math.PI/2));
 		
 		Vector3f movementVector = new Vector3f();
 		movementVector.add(rightVector.mul(xDir * speed).add(lookVector.mul(-zDir * speed)));
 		movementVector.add(new Vector3f(0, yDir * speed, 0));
 		
-		camPos.add(movementVector);
+		currentCamera.position.add(movementVector);
 		
-		camMatrix.identity();
-		camMatrix.rotateXYZ(-camRot.x, -camRot.y, -camRot.z);
-		camMatrix.translate(-camPos.x, -camPos.y, -camPos.z);
+		currentCamera.getMatrix();
 	}
 	
 	@Override 
@@ -422,7 +409,8 @@ public class Window extends JFrame implements GLEventListener, Container {
 			for (Instance i : children) {
 				if (i instanceof VertexDataHolder) {
 					VertexDataHolder v = (VertexDataHolder) i;
-					installLights(camMatrix, v);
+					installLights(currentCamera.returnMatrix);
+					
 					glDrawFaces(v);
 					
 					if (v.selected) {
@@ -437,7 +425,7 @@ public class Window extends JFrame implements GLEventListener, Container {
 			for (Instance i : children) {
 				if (i instanceof VertexDataHolder) {
 					VertexDataHolder v = (VertexDataHolder) i;
-					installLights(camMatrix, v);
+					installLights(currentCamera.returnMatrix);
 					glDrawFaces(v);
 				}
 			}
@@ -467,6 +455,7 @@ public class Window extends JFrame implements GLEventListener, Container {
 	
 	@Override
 	public void reshape(GLAutoDrawable drawable, int x, int y, int width, int height) {
+		aspect = (float) mainCanvas.getWidth() / (float) mainCanvas.getHeight();
 		this.requestFocus();
 	};
 	
