@@ -13,7 +13,7 @@ import static com.jogamp.opengl.GL.*;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 
-public class VertexDataHolder extends Instance implements Container {
+public class VertexDataHolder extends Instance {
 	public ArrayList<Vector3f> vertexPositions;
 	public ArrayList<Vector3f> vertexNormals;
 	public ArrayList<Vector3f> vertexColors;
@@ -52,20 +52,6 @@ public class VertexDataHolder extends Instance implements Container {
 		return result;
 	}
 	
-	@Override
-	public void removeChild(Instance child) {
-		for (int i = 0; i < children.size(); i++) {
-			if (children.get(i) == child) {
-				children.remove(i);
-				break;
-			}
-		}
-	}
-	
-	@Override
-	public void setChild(Instance child) {
-		children.add(child);
-	}
 	
 	public void updateMatrix() {
 		modelMatrix.identity();
@@ -99,6 +85,7 @@ public class VertexDataHolder extends Instance implements Container {
 		
 		texId = 0;
 		
+		instanceName = "VertexDataHolder";
 		imageName = "";
 	}
 	

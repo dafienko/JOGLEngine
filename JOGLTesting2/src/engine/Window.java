@@ -20,7 +20,7 @@ import com.jogamp.opengl.awt.GLCanvas;
 import com.jogamp.opengl.util.Animator;
 
 @SuppressWarnings("serial")
-public class Window extends JFrame implements GLEventListener, Container {
+public class Window extends JFrame implements GLEventListener {
 	private GLCanvas mainCanvas; //test1
 	
 	private Animator animator;
@@ -67,8 +67,12 @@ public class Window extends JFrame implements GLEventListener, Container {
 	
 	private JLabel frameRateLabel;
 	
+	private Heirarchy heirarchy;
+	
+	public Container container;
+	
 	public Window() {
-		this.setBounds(0, 0, 1920, 1080);
+		this.setBounds(200, 100, 1000, 600);
 		this.setDefaultCloseOperation(EXIT_ON_CLOSE);
 		this.setTitle("yeet");
 		this.setLayout(new BorderLayout());
@@ -98,26 +102,15 @@ public class Window extends JFrame implements GLEventListener, Container {
 		
 		animator = new Animator(mainCanvas);
 		animator.start();
+		
+		heirarchy = new Heirarchy(container);
+		
+		container = new Container();
 	}
-	
-	@Override 
-	public void setChild(Instance child) {
-		children.add(child);
-	}
-	
-	@Override 
-	public void removeChild(Instance child) {
-		for (int i = 0; i < children.size(); i++) {
-			if (child == children.get(i)) {
-				children.remove(i);
-			}
-		}
-	}
-	
 	
 	public VertexDataHolder createInstance() {
 		VertexDataHolder v = new VertexDataHolder();
-		children.add(v);
+		v.setParent(container);
 		return v;
 	}
 	
@@ -406,7 +399,7 @@ public class Window extends JFrame implements GLEventListener, Container {
 		switch(wireFrameMode) {
 		case 0:
 
-			for (Instance i : children) {
+			for (Instance i : container.children) {
 				if (i instanceof VertexDataHolder) {
 					VertexDataHolder v = (VertexDataHolder) i;
 					installLights(currentCamera.returnMatrix);
@@ -422,7 +415,7 @@ public class Window extends JFrame implements GLEventListener, Container {
 			
 			break;
 		case 1:
-			for (Instance i : children) {
+			for (Instance i : container.children) {
 				if (i instanceof VertexDataHolder) {
 					VertexDataHolder v = (VertexDataHolder) i;
 					installLights(currentCamera.returnMatrix);
@@ -431,7 +424,7 @@ public class Window extends JFrame implements GLEventListener, Container {
 			}
 			
 			updateUniforms();
-			for (Instance i : children) {
+			for (Instance i : container.children) {
 				if (i instanceof VertexDataHolder) {
 					VertexDataHolder v = (VertexDataHolder) i;
 					glDrawLinesAndPoints(v);
@@ -439,7 +432,7 @@ public class Window extends JFrame implements GLEventListener, Container {
 			}
 			break;
 		case 2:
-			for (Instance i : children) {
+			for (Instance i : container.children) {
 				if (i instanceof VertexDataHolder) {
 					VertexDataHolder v = (VertexDataHolder) i;
 					glDrawLinesAndPoints(v);

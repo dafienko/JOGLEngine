@@ -1,10 +1,13 @@
 package engine;
 
-public abstract class Instance {
+public abstract class Instance extends Container {
 	public Container parent;
+	public String instanceName;
 	
 	public void setParent(Container parent) {
-		this.parent.removeChild(this);
+		if( this.parent != null) {
+			this.parent.removeChild(this);
+		}
 		parent.setChild(this);
 		this.parent = parent;
 	}

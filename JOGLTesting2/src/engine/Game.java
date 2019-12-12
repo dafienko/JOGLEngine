@@ -181,7 +181,7 @@ public class Game {
 		dave.createVertexArrayObject(gl);
 		dave.createFlatVertexArrayObject(gl);
 		
-		wnd.removeChild(brian);
+		wnd.container.removeChild(brian);
 	}
 
 	private static float elapsedTime = 0.0f;
