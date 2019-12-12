@@ -4,11 +4,11 @@ import java.util.ArrayList;
 
 public class Container {
 	public ArrayList<Instance> children;
-	public String containerName;
+	public String name;
 	
 	public Container() {
 		children = new ArrayList<Instance>();
-		containerName = "Container";
+		name = "Container";
 	}
 	
 	public void setChild(Instance child) {

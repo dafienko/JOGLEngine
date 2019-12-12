@@ -67,7 +67,7 @@ public class Window extends JFrame implements GLEventListener {
 	
 	private JLabel frameRateLabel;
 	
-	private Heirarchy heirarchy;
+	public Heirarchy heirarchy;
 	
 	public Container container;
 	
@@ -103,14 +103,16 @@ public class Window extends JFrame implements GLEventListener {
 		animator = new Animator(mainCanvas);
 		animator.start();
 		
-		heirarchy = new Heirarchy(container);
-		
 		container = new Container();
+		
+		heirarchy = new Heirarchy(container);
+	
 	}
 	
 	public VertexDataHolder createInstance() {
 		VertexDataHolder v = new VertexDataHolder();
 		v.setParent(container);
+		heirarchy.updateHeirarchy(heirarchy.mainPanel, container);
 		return v;
 	}
 	
@@ -134,6 +136,7 @@ public class Window extends JFrame implements GLEventListener {
 
 		kbd = new Keyboard();
 		this.addKeyListener(kbd);
+		mainCanvas.addKeyListener(kbd);
 	}
 	
 	public GL4 getGLContext() {
@@ -286,8 +289,6 @@ public class Window extends JFrame implements GLEventListener {
 	public void glDrawLinesAndPoints(VertexDataHolder mesh) {
 		GL4 gl = (GL4) GLContext.getCurrentGL();
 		
-		gl.glDisable(GL_DEPTH_TEST);
-		
 		gl.glUseProgram(vfFlatColorProgram);
 		
 		mesh.updateMatrix();
@@ -297,7 +298,7 @@ public class Window extends JFrame implements GLEventListener {
 		
 		gl.glLineWidth(1.0f);
 		
-		gl.glDisable(GL_DEPTH_TEST);	
+		gl.glDepthFunc(GL_ALWAYS);
 
 		setColor(gl, wireframeColor);
 		gl.glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh.flatvbo[0]);
@@ -366,6 +367,7 @@ public class Window extends JFrame implements GLEventListener {
 	
 	@Override 
 	public void display(GLAutoDrawable drawable) {
+		GL4 gl = (GL4) GLContext.getCurrentGL();
 		deltaTime = fpsCounter.tick();
 		elapsedTime += deltaTime;
 		//this.setTitle(fpsCounter.getFPS() + " fps");
@@ -374,7 +376,7 @@ public class Window extends JFrame implements GLEventListener {
 		colorVal = (float)((Math.sin(elapsedTime*3) + 1) / 2);
 		wireframeColor.set(colorVal, colorVal, 1);
 		
-		this.requestFocus();
+		//this.requestFocus();
 		
 		if (kbd.keyPressedThisFrame("R")) {
 			wireFrameMode++;
@@ -398,7 +400,6 @@ public class Window extends JFrame implements GLEventListener {
 		
 		switch(wireFrameMode) {
 		case 0:
-
 			for (Instance i : container.children) {
 				if (i instanceof VertexDataHolder) {
 					VertexDataHolder v = (VertexDataHolder) i;
@@ -435,6 +436,7 @@ public class Window extends JFrame implements GLEventListener {
 			for (Instance i : container.children) {
 				if (i instanceof VertexDataHolder) {
 					VertexDataHolder v = (VertexDataHolder) i;
+					gl.glDisable(GL_DEPTH_TEST);
 					glDrawLinesAndPoints(v);
 				}
 			}

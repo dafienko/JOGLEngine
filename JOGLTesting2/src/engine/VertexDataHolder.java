@@ -85,7 +85,7 @@ public class VertexDataHolder extends Instance {
 		
 		texId = 0;
 		
-		instanceName = "VertexDataHolder";
+		name = "VertexDataHolder";
 		imageName = "";
 	}
 	

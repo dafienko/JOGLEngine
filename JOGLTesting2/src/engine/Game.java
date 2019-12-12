@@ -144,12 +144,13 @@ public class Game {
 		brian.textured = true;
 		brian.createVertexArrayObject(gl);
 		brian.createFlatVertexArrayObject(gl);
+		brian.name = "brian";
 		
 		lary.indices = brian.indices;
 		lary.vertexColors = brian.vertexColors;
 		lary.vertexPositions = brian.vertexPositions;
 		lary.vertexNormals = brian.vertexNormals;
-		
+		lary.name = "lary";
 		lary.textureCoordinates = brian.textureCoordinates;
 		
 		lary.imageName = "lary.jpg";
@@ -168,7 +169,7 @@ public class Game {
 		dave.vertexColors = brian.vertexColors;
 		dave.vertexPositions = brian.vertexPositions;
 		dave.vertexNormals = brian.vertexNormals;
-		
+		dave.name = "dave";
 		dave.textureCoordinates = brian.textureCoordinates;
 		
 		dave.imageName = "david.jpg";
@@ -181,7 +182,9 @@ public class Game {
 		dave.createVertexArrayObject(gl);
 		dave.createFlatVertexArrayObject(gl);
 		
-		wnd.container.removeChild(brian);
+		//wnd.container.removeChild(brian);
+		System.out.println("Updating");
+		wnd.heirarchy.updateHeirarchy(wnd.heirarchy.mainPanel, wnd.container);
 	}
 
 	private static float elapsedTime = 0.0f;
