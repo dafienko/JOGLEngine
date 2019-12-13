@@ -278,6 +278,8 @@ public class Window extends JFrame implements GLEventListener {
 		mesh.updateMatrix();
 		updateMeshUniforms(mesh);
 		
+		gl.glDepthFunc(GL_LESS);
+		
 		gl.glBindVertexArray(mesh.vao[0]);
 		
 		gl.glActiveTexture(GL_TEXTURE0);
@@ -286,7 +288,7 @@ public class Window extends JFrame implements GLEventListener {
 		gl.glDrawElements(GL_TRIANGLES, mesh.indices.size(), GL_UNSIGNED_INT, 0);	
 	}
 	
-	public void glDrawLinesAndPoints(VertexDataHolder mesh) {
+	public void glDrawWireframe(VertexDataHolder mesh) {
 		GL4 gl = (GL4) GLContext.getCurrentGL();
 		
 		gl.glUseProgram(vfFlatColorProgram);
@@ -374,13 +376,13 @@ public class Window extends JFrame implements GLEventListener {
 				
 				glDrawFaces(v);
 				
-				if (v.selected) {
-					updateUniforms();
-					glDrawLinesAndPoints(v);
-				}
-				
 				if (i.children.size() > 0) {
 					drawChildrenFaces(i);
+				}
+				
+				if (v.selected) {
+					updateUniforms();
+					glDrawWireframe(v);
 				}
 			}
 		}
@@ -391,7 +393,7 @@ public class Window extends JFrame implements GLEventListener {
 			if (i instanceof VertexDataHolder) {
 				VertexDataHolder v = (VertexDataHolder) i;
 				
-				glDrawLinesAndPoints(v);
+				glDrawWireframe(v);
 				
 				if (i.children.size() > 0) {
 					drawChildrenFaces(i);

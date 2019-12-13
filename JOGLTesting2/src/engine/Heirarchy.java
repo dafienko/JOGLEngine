@@ -3,6 +3,8 @@ package engine;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 
 import javax.swing.*;
@@ -22,34 +24,34 @@ class ContainerFrame extends JPanel {
 		return height;
 	}
 	
+	public boolean mouseInFrame = false;
+	public static final Color SELECTED_COLOR = new Color(0, 0, 255);
+	
 	public ContainerFrame(final Heirarchy h, JPanel parentFrame, final Container container) {
 		this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 		System.out.println(parentFrame.getWidth());
-		this.setAlignmentX(20/Math.max(parentFrame.getWidth(), 1));
 		this.setAlignmentX(LEFT_ALIGNMENT);
-		
-		JPanel headerFrame = new JPanel();
+
+		final JPanel headerFrame = new JPanel();
 		headerFrame.setLayout(new BoxLayout(headerFrame, BoxLayout.X_AXIS));
 		headerFrame.setAlignmentX(.2f);
 		headerFrame.setMinimumSize(new Dimension(0, 16));
 		headerFrame.setPreferredSize(new Dimension(200, 16));
+		headerFrame.setBorder(BorderFactory.createEmptyBorder(4, 0, 4, 0));
 		
-		JPanel childrenFrame = new JPanel();
+		
+		final JPanel childrenFrame = new JPanel();
 		childrenFrame.setLayout(new BoxLayout(childrenFrame, BoxLayout.Y_AXIS));
 		childrenFrame.setAlignmentX(LEFT_ALIGNMENT); ///20/Math.max(parentFrame.getWidth(), 1)
 		if (h.expandedContainers.indexOf(container) >= 0 ) { // if this container is expanded in the heirarchy
-			childrenFrame.setMinimumSize(new Dimension(0, getChildrenFrameHeight(container, h.expandedContainers)));
-			childrenFrame.setPreferredSize(new Dimension(200, getChildrenFrameHeight(container, h.expandedContainers)));
-			
 			for (Container c : container.children) {
 				ContainerFrame cf = new ContainerFrame(h, childrenFrame, c);
 				childrenFrame.add(cf);
 			}
 		}
-		this.setBackground(new Color(255, 0, 0));
+		childrenFrame.setBorder(BorderFactory.createEmptyBorder(0, 20, 0, 0));
 		
-		
-		JButton dropDown = new JButton();
+		final JButton dropDown = new JButton();
 		dropDown.setLayout(new FlowLayout());
 		dropDown.setPreferredSize(new Dimension(parentFrame.getWidth(), 30));
 		dropDown.setAlignmentY(TOP_ALIGNMENT);
@@ -71,8 +73,7 @@ class ContainerFrame extends JPanel {
 			}
 		});
 	
-		JLabel name = new JLabel();
-		name.setMinimumSize(new Dimension(16, 16));
+		final JLabel name = new JLabel();
 		name.setAlignmentY(TOP_ALIGNMENT);
 		if (h.expandedContainers.indexOf(container) >= 0) {
 			name.setText(" v " + container.name);
@@ -80,6 +81,47 @@ class ContainerFrame extends JPanel {
 			name.setText(" > " + container.name);
 		}
 		
+		
+		name.addMouseListener(new MouseAdapter() {
+			@Override 
+			public void mouseEntered(MouseEvent e) {
+				mouseInFrame = true;
+			}
+			
+			@Override 
+			public void mouseExited(MouseEvent e) {
+				mouseInFrame = false;
+			}
+			
+			@Override 
+			public void mouseReleased(MouseEvent e) {
+				System.out.println(mouseInFrame);
+				if (mouseInFrame) {
+					if (name.getBackground().equals(SELECTED_COLOR)) {
+						if (container instanceof VertexDataHolder) {
+							VertexDataHolder v = (VertexDataHolder) container;
+							v.selected = false;
+						}
+						
+						headerFrame.setBackground(new Color(255, 255, 255));
+						name.setBackground(new Color(255, 255, 255));
+						h.revalidate();
+					} else {
+						System.out.println("yeet");
+						if (container instanceof VertexDataHolder) {
+							VertexDataHolder v = (VertexDataHolder) container;
+							v.selected = true;
+						}
+						
+						headerFrame.setBackground(SELECTED_COLOR);
+						name.setBackground(SELECTED_COLOR);
+						h.revalidate();
+					}
+				}
+			}
+		});
+		
+		name.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 20));
 		headerFrame.add(dropDown);
 		headerFrame.add(name);
 		
@@ -120,6 +162,9 @@ public class Heirarchy extends JFrame {
 		mainPanel = new JPanel();
 		mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
 		mainPanel.setAlignmentX(LEFT_ALIGNMENT);
+		mainPanel.setMinimumSize(new Dimension(500, 500));
+		//mainPanel.setPreferredSize(new Dimension(200, 600));
+		mainPanel.setBackground(new Color(0, 0, 255));
 		
 		this.add(mainPanel);
 		
@@ -142,7 +187,6 @@ public class Heirarchy extends JFrame {
 			mainPanel.add(cf);
 		}
 		
-		this.setVisible(false);
-		this.setVisible(true);
+		this.revalidate();
 	}
 }
