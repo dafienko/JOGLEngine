@@ -39,6 +39,7 @@ class ContainerFrame extends JPanel {
 		headerFrame.setPreferredSize(new Dimension(200, 16));
 		headerFrame.setBorder(BorderFactory.createEmptyBorder(4, 0, 4, 0));
 		
+		headerFrame.setBackground((h.selectedContainers.indexOf(container) >= 0) ? SELECTED_COLOR : new Color(255, 255, 255));
 		
 		final JPanel childrenFrame = new JPanel();
 		childrenFrame.setLayout(new BoxLayout(childrenFrame, BoxLayout.Y_AXIS));
@@ -97,14 +98,15 @@ class ContainerFrame extends JPanel {
 			public void mouseReleased(MouseEvent e) {
 				System.out.println(mouseInFrame);
 				if (mouseInFrame) {
-					if (name.getBackground().equals(SELECTED_COLOR)) {
+					int index = -1;
+					if ((index = h.selectedContainers.indexOf(container)) >= 0) {
 						if (container instanceof VertexDataHolder) {
 							VertexDataHolder v = (VertexDataHolder) container;
 							v.selected = false;
 						}
 						
-						headerFrame.setBackground(new Color(255, 255, 255));
-						name.setBackground(new Color(255, 255, 255));
+						h.selectedContainers.remove(index);
+					
 						h.revalidate();
 					} else {
 						System.out.println("yeet");
@@ -113,10 +115,12 @@ class ContainerFrame extends JPanel {
 							v.selected = true;
 						}
 						
-						headerFrame.setBackground(SELECTED_COLOR);
-						name.setBackground(SELECTED_COLOR);
+						h.selectedContainers.add(container);
+						
 						h.revalidate();
 					}
+					
+					h.updateHeirarchy(h.mainPanel, h.mainContainer);
 				}
 			}
 		});
@@ -138,6 +142,7 @@ public class Heirarchy extends JFrame {
 	protected Container mainContainer;
 	public JPanel mainPanel;
 	private ArrayList<JPanel> addedPanels;
+	public ArrayList<Container> selectedContainers;
 	
 	private void clearHeirarchy() {
 		for (JPanel jp : addedPanels) {
@@ -158,6 +163,7 @@ public class Heirarchy extends JFrame {
 		
 		addedPanels = new ArrayList<JPanel>();
 		expandedContainers = new ArrayList<Container>();
+		selectedContainers = new ArrayList<Container>();
 		
 		mainPanel = new JPanel();
 		mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
