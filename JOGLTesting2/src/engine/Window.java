@@ -365,6 +365,41 @@ public class Window extends JFrame implements GLEventListener {
 		currentCamera.getMatrix();
 	}
 	
+	public void drawChildrenFaces(Container c) {
+		for (Instance i : c.children) {
+			if (i instanceof VertexDataHolder) {
+				VertexDataHolder v = (VertexDataHolder) i;
+				
+				installLights(currentCamera.returnMatrix);
+				
+				glDrawFaces(v);
+				
+				if (v.selected) {
+					updateUniforms();
+					glDrawLinesAndPoints(v);
+				}
+				
+				if (i.children.size() > 0) {
+					drawChildrenFaces(i);
+				}
+			}
+		}
+	}
+	
+	public void drawChildrenWireframe(Container c) {
+		for (Instance i : c.children) {
+			if (i instanceof VertexDataHolder) {
+				VertexDataHolder v = (VertexDataHolder) i;
+				
+				glDrawLinesAndPoints(v);
+				
+				if (i.children.size() > 0) {
+					drawChildrenFaces(i);
+				}
+			}
+		}
+	}
+	
 	@Override 
 	public void display(GLAutoDrawable drawable) {
 		GL4 gl = (GL4) GLContext.getCurrentGL();
@@ -375,8 +410,6 @@ public class Window extends JFrame implements GLEventListener {
 		
 		colorVal = (float)((Math.sin(elapsedTime*3) + 1) / 2);
 		wireframeColor.set(colorVal, colorVal, 1);
-		
-		//this.requestFocus();
 		
 		if (kbd.keyPressedThisFrame("R")) {
 			wireFrameMode++;
@@ -400,46 +433,16 @@ public class Window extends JFrame implements GLEventListener {
 		
 		switch(wireFrameMode) {
 		case 0:
-			for (Instance i : container.children) {
-				if (i instanceof VertexDataHolder) {
-					VertexDataHolder v = (VertexDataHolder) i;
-					installLights(currentCamera.returnMatrix);
-					
-					glDrawFaces(v);
-					
-					if (v.selected) {
-						updateUniforms();
-						glDrawLinesAndPoints(v);
-					}
-				}
-			}
-			
+			drawChildrenFaces(container);
 			break;
 		case 1:
-			for (Instance i : container.children) {
-				if (i instanceof VertexDataHolder) {
-					VertexDataHolder v = (VertexDataHolder) i;
-					installLights(currentCamera.returnMatrix);
-					glDrawFaces(v);
-				}
-			}
+			drawChildrenFaces(container);
 			
 			updateUniforms();
-			for (Instance i : container.children) {
-				if (i instanceof VertexDataHolder) {
-					VertexDataHolder v = (VertexDataHolder) i;
-					glDrawLinesAndPoints(v);
-				}
-			}
+			drawChildrenWireframe(container);
 			break;
 		case 2:
-			for (Instance i : container.children) {
-				if (i instanceof VertexDataHolder) {
-					VertexDataHolder v = (VertexDataHolder) i;
-					gl.glDisable(GL_DEPTH_TEST);
-					glDrawLinesAndPoints(v);
-				}
-			}
+			drawChildrenWireframe(container);
 			break;
 		}
 			

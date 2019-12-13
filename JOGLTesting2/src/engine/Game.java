@@ -162,7 +162,7 @@ public class Game {
 		
 		lary.createVertexArrayObject(gl);
 		lary.createFlatVertexArrayObject(gl);
-		
+		lary.setParent(brian);
 		
 		
 		dave.indices = brian.indices;
@@ -181,6 +181,8 @@ public class Game {
 		
 		dave.createVertexArrayObject(gl);
 		dave.createFlatVertexArrayObject(gl);
+		
+		dave.setParent(brian);
 		
 		//wnd.container.removeChild(brian);
 		System.out.println("Updating");
