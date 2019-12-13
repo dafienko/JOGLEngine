@@ -68,6 +68,7 @@ public class Window extends JFrame implements GLEventListener {
 	private JLabel frameRateLabel;
 	
 	public Heirarchy heirarchy;
+	public Properties properties;
 	
 	public Container container;
 	
@@ -106,7 +107,7 @@ public class Window extends JFrame implements GLEventListener {
 		container = new Container();
 		
 		heirarchy = new Heirarchy(container);
-	
+		properties = new Properties(heirarchy);
 	}
 	
 	public VertexDataHolder createInstance() {
@@ -376,14 +377,14 @@ public class Window extends JFrame implements GLEventListener {
 				
 				glDrawFaces(v);
 				
-				if (i.children.size() > 0) {
-					drawChildrenFaces(i);
-				}
-				
 				if (v.selected) {
 					updateUniforms();
 					glDrawWireframe(v);
 				}
+			}
+			
+			if (i.children.size() > 0) {
+				drawChildrenFaces(i);
 			}
 		}
 	}
@@ -395,9 +396,10 @@ public class Window extends JFrame implements GLEventListener {
 				
 				glDrawWireframe(v);
 				
-				if (i.children.size() > 0) {
-					drawChildrenFaces(i);
-				}
+			}
+			
+			if (i.children.size() > 0) {
+				drawChildrenWireframe(i);
 			}
 		}
 	}

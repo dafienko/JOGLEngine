@@ -29,7 +29,6 @@ class ContainerFrame extends JPanel {
 	
 	public ContainerFrame(final Heirarchy h, JPanel parentFrame, final Container container) {
 		this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-		System.out.println(parentFrame.getWidth());
 		this.setAlignmentX(LEFT_ALIGNMENT);
 
 		final JPanel headerFrame = new JPanel();
@@ -62,7 +61,6 @@ class ContainerFrame extends JPanel {
 		dropDown.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				System.out.println("pressed");
 				int index = h.expandedContainers.indexOf(container);
 				if (index < 0) {
 					h.expandedContainers.add(container);
@@ -96,7 +94,6 @@ class ContainerFrame extends JPanel {
 			
 			@Override 
 			public void mouseReleased(MouseEvent e) {
-				System.out.println(mouseInFrame);
 				if (mouseInFrame) {
 					int index = -1;
 					if ((index = h.selectedContainers.indexOf(container)) >= 0) {
@@ -109,7 +106,6 @@ class ContainerFrame extends JPanel {
 					
 						h.revalidate();
 					} else {
-						System.out.println("yeet");
 						if (container instanceof VertexDataHolder) {
 							VertexDataHolder v = (VertexDataHolder) container;
 							v.selected = true;
@@ -159,7 +155,7 @@ public class Heirarchy extends JFrame {
 		
 		this.setLayout(new BoxLayout(this.getContentPane(), BoxLayout.Y_AXIS));
 		
-		this.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+		this.setDefaultCloseOperation(HIDE_ON_CLOSE);
 		
 		addedPanels = new ArrayList<JPanel>();
 		expandedContainers = new ArrayList<Container>();
@@ -169,7 +165,6 @@ public class Heirarchy extends JFrame {
 		mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
 		mainPanel.setAlignmentX(LEFT_ALIGNMENT);
 		mainPanel.setMinimumSize(new Dimension(500, 500));
-		//mainPanel.setPreferredSize(new Dimension(200, 600));
 		mainPanel.setBackground(new Color(0, 0, 255));
 		
 		this.add(mainPanel);
@@ -184,8 +179,6 @@ public class Heirarchy extends JFrame {
 	
 	public void updateHeirarchy(JPanel mainPanel, Container container) { 
 		clearHeirarchy();
-		
-		System.out.println("Updating heirarchy");
 		
 		for (Instance i : container.children) {
 			ContainerFrame cf = new ContainerFrame(this, mainPanel, i);

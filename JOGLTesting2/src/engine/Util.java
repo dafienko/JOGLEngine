@@ -38,6 +38,27 @@ import com.jogamp.opengl.util.texture.TextureIO;
 public class Util {
 	public static boolean debugMode = true;
 	
+	public static String removeEvery(String s, char c) {
+		String result = "";
+		for (char x : s.toCharArray()) {
+			if (x != c) {
+				result += x;
+			}
+		}
+		
+		return result;
+	}
+	
+	public static String removeEvery(String s, char[] cArr) {
+		String result = new String(s);
+		
+		for (char c : cArr) {
+			result = removeEvery(result, c);
+		}
+		
+		return result;
+	}
+	
 	public static String[] toStringArray(File file) {
 		ArrayList<String> temp = new ArrayList<String>();
 		String[] result;
