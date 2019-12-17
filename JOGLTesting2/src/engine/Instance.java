@@ -7,7 +7,9 @@ public abstract class Instance extends Container {
 		if( this.parent != null) {
 			this.parent.removeChild(this);
 		}
-		parent.setChild(this);
+		if (parent != null) {
+			parent.setChild(this);
+		}
 		this.parent = parent;
 	}
 }
