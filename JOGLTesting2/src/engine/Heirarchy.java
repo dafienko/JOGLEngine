@@ -165,7 +165,6 @@ public class Heirarchy extends JFrame {
 		mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
 		mainPanel.setAlignmentX(LEFT_ALIGNMENT);
 		mainPanel.setMinimumSize(new Dimension(500, 500));
-		mainPanel.setBackground(new Color(0, 0, 255));
 		
 		this.add(mainPanel);
 		

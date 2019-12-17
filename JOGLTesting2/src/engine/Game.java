@@ -185,8 +185,9 @@ public class Game {
 		
 		dave.setParent(wnd.container);
 		
-		//wnd.container.removeChild(brian);
-		System.out.println("Updating");
+		lary.selected = true;
+		dave.selected = true;
+		
 		wnd.heirarchy.updateHeirarchy(wnd.heirarchy.mainPanel, wnd.container);
 	}
 

@@ -178,13 +178,12 @@ public class Window extends JFrame implements GLEventListener {
 	}
 	
 	public void setColor(GL4 gl, Vector3f c) {
+		cLoc = gl.glGetUniformLocation(vfFlatColorProgram, "vColor");
 		gl.glUniform4f(cLoc, c.x, c.y, c.z, 1.0f);
 	}
 	
 	public void updateUniforms() {
 		GL4 gl = (GL4) GLContext.getCurrentGL();
-		
-		cLoc = gl.glGetUniformLocation(vfFlatColorProgram, "vColor");
 		
 		projMatLoc = gl.glGetUniformLocation(vfMainProgram, "projectionMatrix");
 		gl.glUniformMatrix4fv(projMatLoc, 1, false, projectionMatrix.get(matrixVals));
@@ -274,14 +273,17 @@ public class Window extends JFrame implements GLEventListener {
 	public void glDrawFaces(VertexDataHolder mesh) {
 		GL4 gl = (GL4) GLContext.getCurrentGL();
 		
+		System.out.println("drawing " + mesh.name);
+		
 		gl.glUseProgram(vfMainProgram);
 		
 		mesh.updateMatrix();
 		updateMeshUniforms(mesh);
 		
-		gl.glDepthFunc(GL_LESS);
-		
 		gl.glBindVertexArray(mesh.vao[0]);
+		
+		gl.glEnable(GL_DEPTH_TEST);
+		gl.glDepthFunc(GL_LESS);
 		
 		gl.glActiveTexture(GL_TEXTURE0);
 		gl.glBindTexture(GL_TEXTURE_2D, mesh.texId);
@@ -294,6 +296,7 @@ public class Window extends JFrame implements GLEventListener {
 		
 		gl.glUseProgram(vfFlatColorProgram);
 		
+		setColor(gl, wireframeColor);
 		mesh.updateMatrix();
 		updateMeshUniforms(mesh);
 		
@@ -303,7 +306,6 @@ public class Window extends JFrame implements GLEventListener {
 		
 		gl.glDepthFunc(GL_ALWAYS);
 
-		setColor(gl, wireframeColor);
 		gl.glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh.flatvbo[0]);
 		gl.glDrawElements(GL_LINES, mesh.lineIndices.size(), GL_UNSIGNED_INT, 0);
 	}
@@ -378,9 +380,10 @@ public class Window extends JFrame implements GLEventListener {
 				glDrawFaces(v);
 				
 				if (v.selected) {
-					updateUniforms();
+					System.out.println(v.name);
 					glDrawWireframe(v);
 				}
+				
 			}
 			
 			if (i.children.size() > 0) {
@@ -406,6 +409,7 @@ public class Window extends JFrame implements GLEventListener {
 	
 	@Override 
 	public void display(GLAutoDrawable drawable) {
+		System.out.println("display");
 		GL4 gl = (GL4) GLContext.getCurrentGL();
 		deltaTime = fpsCounter.tick();
 		elapsedTime += deltaTime;
