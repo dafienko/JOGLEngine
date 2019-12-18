@@ -277,6 +277,8 @@ public class Window extends JFrame implements GLEventListener {
 		
 		gl.glUseProgram(vfMainProgram);
 		
+		updateUniforms();
+		
 		mesh.updateMatrix();
 		updateMeshUniforms(mesh);
 		
@@ -297,8 +299,13 @@ public class Window extends JFrame implements GLEventListener {
 		gl.glUseProgram(vfFlatColorProgram);
 		
 		setColor(gl, wireframeColor);
+		
+		updateUniforms();
+		
 		mesh.updateMatrix();
 		updateMeshUniforms(mesh);
+		
+		
 		
 		gl.glBindVertexArray(mesh.flatvao[0]);
 		
@@ -380,7 +387,8 @@ public class Window extends JFrame implements GLEventListener {
 				glDrawFaces(v);
 				
 				if (v.selected) {
-					System.out.println(v.name);
+					
+					
 					glDrawWireframe(v);
 				}
 				

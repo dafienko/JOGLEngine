@@ -184,9 +184,7 @@ public class Game {
 		dave.createFlatVertexArrayObject(gl);
 		
 		dave.setParent(wnd.container);
-		
-		lary.selected = true;
-		dave.selected = true;
+
 		
 		wnd.heirarchy.updateHeirarchy(wnd.heirarchy.mainPanel, wnd.container);
 	}
