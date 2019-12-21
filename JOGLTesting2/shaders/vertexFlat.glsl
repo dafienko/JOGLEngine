@@ -16,5 +16,5 @@ void main() {
 	mat4 mvMatrix = cameraMatrix * modelMatrix;
 
 	gl_Position = projectionMatrix * mvMatrix * vec4(position.xyz, 1.0);
-};
+}
 

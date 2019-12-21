@@ -52,5 +52,5 @@ void main() {
 	tc = texCoord;
 
 	gl_Position = projectionMatrix * mvMatrix * vec4(position.xyz, 1.0);
-};
+}
 

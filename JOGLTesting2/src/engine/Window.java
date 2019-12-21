@@ -273,8 +273,6 @@ public class Window extends JFrame implements GLEventListener {
 	public void glDrawFaces(VertexDataHolder mesh) {
 		GL4 gl = (GL4) GLContext.getCurrentGL();
 		
-		System.out.println("drawing " + mesh.name);
-		
 		gl.glUseProgram(vfMainProgram);
 		
 		updateUniforms();
@@ -417,7 +415,6 @@ public class Window extends JFrame implements GLEventListener {
 	
 	@Override 
 	public void display(GLAutoDrawable drawable) {
-		System.out.println("display");
 		GL4 gl = (GL4) GLContext.getCurrentGL();
 		deltaTime = fpsCounter.tick();
 		elapsedTime += deltaTime;

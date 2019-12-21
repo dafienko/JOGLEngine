@@ -141,7 +141,7 @@ public class Util {
 		int[] linked = new int[1];
 		
 		int vShader = gl.glCreateShader(GL_VERTEX_SHADER);
-		File vShaderFile = new File(".\\shaders\\" + vShaderFileName);
+		File vShaderFile = new File("JOGLTesting2/shaders/" + vShaderFileName);
 		String[] vShaderText = toStringArray(vShaderFile);
 		
 		
@@ -157,7 +157,7 @@ public class Util {
 		}
 		
 		int fShader = gl.glCreateShader(GL_FRAGMENT_SHADER);
-		File fShaderFile = new File(".\\shaders\\" + fShaderFileName);
+		File fShaderFile = new File("JOGLTesting2/shaders/" + fShaderFileName);
 		String[] fShaderText = toStringArray(fShaderFile);
 	
 		gl.glShaderSource(fShader, fShaderText.length, fShaderText, null, 0);
@@ -196,7 +196,7 @@ public class Util {
 	public static int loadTexture(String textureFileName) 
 	{
 		Texture tex = null;
-		try {tex = TextureIO.newTexture(new File(".\\images\\" + textureFileName), false); }
+		try {tex = TextureIO.newTexture(new File("JOGLTesting2/images/" + textureFileName), false); }
 		catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -229,7 +229,7 @@ public class Util {
 	private static BufferedImage getBufferedImage(String fileName) {
 		BufferedImage img;
 		
-		try { img = ImageIO.read(new File(".\\images\\" + fileName)); } 
+		try { img = ImageIO.read(new File("JOGLTesting2/images/" + fileName)); }
 		catch (Exception e) {
 			System.err.println("Error reading " + fileName + "");
 			throw new RuntimeException(e);
